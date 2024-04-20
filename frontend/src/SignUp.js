@@ -1,31 +1,84 @@
-import React from "react";
+import React, { useState } from 'react';
+import axios from 'axios';
+
 function SignUpForm() {
-  const [state, setState] = React.useState({
-    name: "",
+  const [state, setState] = useState({
     email: "",
-    password: ""
+    password: "",
+    confirmPassword: ""
   });
+  
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [registrationError, setRegistrationError] = useState("");
+
   const handleChange = evt => {
-    const value = evt.target.value;
-    setState({
-      ...state,
-      [evt.target.name]: value
-    });
+    const { name, value } = evt.target;
+    setState(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
 
-  const handleOnSubmit = evt => {
+  const handleOnSubmit = async evt => {
     evt.preventDefault();
 
-    const { name, email, password } = state;
-    alert(
-      `You are sign up with name: ${name} email: ${email} and password: ${password}`
-    );
+    const { email, password, confirmPassword } = state;
 
-    for (const key in state) {
-      setState({
-        ...state,
-        [key]: ""
+    // Validation checks
+    
+    if (email === "") {
+      setEmailError("Email is required");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+    if(!/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,10}$/.test(password) && confirmPassword===""){
+      setPasswordError("Password should be alphanumeric and not more than 10 characters");
+      return;
+    }
+    if (password === "") {
+      setPasswordError("Password is required");
+      return;
+    }
+    if (password!==confirmPassword && confirmPassword!=="" && !/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,10}$/.test(confirmPassword)){
+      setConfirmPasswordError("Password don't match");
+      return;
+    }
+    if(password === !/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,10}$/.test(password) && password!== "" && confirmPassword === ""){
+      setConfirmPasswordError("Please confirm your password");
+      return;
+    }
+
+    try {
+      console.log('Going to backend');
+      // Send data to backend
+      const response = await axios.post('http://localhost:3000/', {
+        email,
+        password
       });
+      console.log(response);
+      if (response.status === 201) {
+        console.log('Registration successful');
+        setState({
+          email: "",
+          password: "",
+          confirmPassword: ""
+        });
+        setEmailError("");
+        setPasswordError("");
+        setConfirmPasswordError("");
+        setRegistrationError(""); // Clear any previous error
+      } else {
+        console.log(response);
+        setRegistrationError("Registration failed. Please try again."); // Set registration error message
+      }
+    } catch (error) {
+      console.error('Registration error:', error.response ? error.response.data.message : error.message);
+      setRegistrationError("Registration failed. Please try again."); // Set registration error message
     }
   };
 
@@ -46,19 +99,12 @@ function SignUpForm() {
         </div>
         <span>or use your email for registration</span>
         <input
-          type="text"
-          name="name"
-          value={state.name}
-          onChange={handleChange}
-          placeholder="Name"
-        />
-        <input
-          type="email"
           name="email"
           value={state.email}
           onChange={handleChange}
           placeholder="Email"
         />
+        {emailError && <span style={{ color: "red" }}>{emailError}</span>}
         <input
           type="password"
           name="password"
@@ -66,7 +112,17 @@ function SignUpForm() {
           onChange={handleChange}
           placeholder="Password"
         />
-        <button>Sign Up</button>
+        {passwordError && <span style={{ color: "red" }}>{passwordError}</span>}
+        <input
+          type="password"
+          name="confirmPassword"
+          value={state.confirmPassword}
+          onChange={handleChange}
+          placeholder="Confirm Password"
+        />
+        {confirmPasswordError && <span style={{ color: "red" }}>{confirmPasswordError}</span>}
+        {registrationError && <p style={{ color: "red" }}>{registrationError}</p>} {/* Display registration error message */}
+        <button type="submit">Sign Up</button>
       </form>
     </div>
   );

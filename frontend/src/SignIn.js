@@ -99,7 +99,7 @@ function SignInForm() {
       return;
     }
 
-    if (!emailIsValid(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailError("Please enter a valid email address");
       return;
     }
@@ -122,9 +122,7 @@ function SignInForm() {
     setPasswordError("");
   };
 
-  const emailIsValid = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
+  
   const showSuccessMessage = (message) => {
     // display the success message in a more elegant way
     alert(message);
@@ -147,13 +145,13 @@ function SignInForm() {
         </div>
         <span>or use your account</span>
         <input
-          type="email"
+          
           placeholder="Email"
           name="email"
           value={state.email}
           onChange={handleChange}
         />
-        {emailError && <p style={{ color: "red" }}>{emailError}</p>}
+        {emailError && <p2 style={{ color: "red" }}>{emailError}</p2>}
         <input
           type="password"
           name="password"
@@ -161,7 +159,7 @@ function SignInForm() {
           value={state.password}
           onChange={handleChange}
         />
-        {passwordError && <p style={{ color: "red" }}>{passwordError}</p>}
+        {passwordError && <p2 style={{ color: "red" }}>{passwordError}</p2>}
         <a href="#">Forgot your password?</a>
         <button>Sign In</button>
       </form>

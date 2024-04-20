@@ -161,7 +161,7 @@ input {
 }
 
 .container.right-panel-active .overlay-container {
-  transform: translateX(-100%);
+  transform: translateX(-100%);   /*for transition*/
 }
 
 .overlay {
